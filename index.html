@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EC Eligibility & CPF Grant Checker</title>
+<title>Singapore EC Eligibility Checker</title>
+
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
 
 <style>
-/* KEEPING YOUR ORIGINAL STYLE EXACTLY */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -20,12 +20,23 @@
   --radius-md:10px; --radius-lg:16px;
 }
 
-body { font-family:var(--font-body); background:var(--gray-50); color:var(--gray-800); }
+body {
+  font-family:var(--font-body);
+  background:var(--gray-50);
+  color:var(--gray-800);
+}
 
 header {
-  background:#0F6E56; color:white; padding:2rem; text-align:center;
+  background:#0F6E56;
+  color:white;
+  text-align:center;
+  padding:2rem;
 }
-header h1 { font-family:var(--font-display); font-size:2rem; }
+
+header h1 {
+  font-family:var(--font-display);
+  font-size:2rem;
+}
 
 .tab-bar {
   background:#085041;
@@ -37,9 +48,9 @@ header h1 { font-family:var(--font-display); font-size:2rem; }
 .tab-btn {
   flex:1;
   padding:12px;
-  color:rgba(255,255,255,0.6);
   border:none;
   background:none;
+  color:rgba(255,255,255,0.6);
   cursor:pointer;
 }
 
@@ -48,7 +59,11 @@ header h1 { font-family:var(--font-display); font-size:2rem; }
   border-bottom:2px solid #9FE1CB;
 }
 
-.container { max-width:640px; margin:auto; padding:1rem; }
+.container {
+  max-width:640px;
+  margin:auto;
+  padding:1rem;
+}
 
 .panel { display:none; }
 .panel.active { display:block; }
@@ -77,9 +92,29 @@ header h1 { font-family:var(--font-display); font-size:2rem; }
 
 .result-body { font-size:14px; }
 
-.note-item {
-  font-size:13px;
-  margin-left:12px;
+.options { display:flex; flex-direction:column; gap:8px; }
+
+.opt {
+  padding:10px;
+  border:1px solid var(--gray-200);
+  border-radius:var(--radius-md);
+  cursor:pointer;
+}
+
+.opt.selected {
+  border-color:var(--teal-400);
+  background:var(--teal-50);
+}
+
+.nav { margin-top:1rem; }
+
+button {
+  padding:8px 16px;
+  border:none;
+  border-radius:6px;
+  background:var(--teal-400);
+  color:white;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -88,7 +123,6 @@ header h1 { font-family:var(--font-display); font-size:2rem; }
 
 <header>
   <h1>Singapore EC Checker</h1>
-  <p>Eligibility • Grant • Buying Process</p>
 </header>
 
 <div class="tab-bar">
@@ -101,92 +135,66 @@ header h1 { font-family:var(--font-display); font-size:2rem; }
 
 <!-- PANEL 1 -->
 <div class="panel active" id="panel-eligibility">
-  <div class="calc-card">
-    Simple eligibility checker already in your previous version
-  </div>
+  <div id="questionnaire"></div>
 </div>
 
 <!-- PANEL 2 -->
 <div class="panel" id="panel-grant">
   <div class="calc-card">
-    CPF Grant Calculator (your existing one works here)
+    <label>Income</label>
+    <input type="range" min="1000" max="16000" value="8000" id="income" oninput="calcGrant()">
+    <div id="grantResult"></div>
   </div>
 </div>
 
-<!-- PANEL 3 NEW -->
+<!-- PANEL 3 -->
 <div class="panel" id="panel-process">
 
-  <!-- Buying Process -->
   <div class="calc-card">
-    <div class="result-title">EC Buying Process</div>
+    <div class="result-title">Buying Process</div>
 
     <div class="result-card eligible">
-      <div class="result-title">1. Sales Launch</div>
-      <div class="result-body">
-        Check eligibility, loan, and budget.<br>
-        Payment: None
-      </div>
+      <div class="result-title">1. Launch</div>
+      <div class="result-body">Check eligibility & finances</div>
     </div>
 
     <div class="result-card eligible">
       <div class="result-title">2. Apply</div>
-      <div class="result-body">
-        Ballot or first-come-first-serve
-      </div>
+      <div class="result-body">Ballot / first-come</div>
     </div>
 
     <div class="result-card eligible">
-      <div class="result-title">3. Book Unit</div>
-      <div class="result-body">
-        Pay 5% option fee
-      </div>
+      <div class="result-title">3. Book</div>
+      <div class="result-body">Pay 5%</div>
     </div>
 
     <div class="result-card eligible">
-      <div class="result-title">4. Sign Agreement</div>
-      <div class="result-body">
-        Pay 15% + legal + stamp duty
-      </div>
+      <div class="result-title">4. Sign</div>
+      <div class="result-body">Pay 15% + fees</div>
     </div>
 
     <div class="result-card eligible">
-      <div class="result-title">5. Key Collection</div>
-      <div class="result-body">
-        Final payments via loan/CPF
-      </div>
+      <div class="result-title">5. Keys</div>
+      <div class="result-body">Collect unit</div>
     </div>
   </div>
 
-  <!-- After Buying -->
   <div class="calc-card">
     <div class="result-title">After Buying</div>
 
     <div class="result-card conditional">
-      <div class="result-title">MOP 5 Years</div>
-      <div class="result-body">
-        Cannot sell or rent whole unit
-      </div>
+      <div class="result-title">5-Year MOP</div>
+      <div class="result-body">Cannot sell or rent whole unit</div>
     </div>
 
     <div class="result-card conditional">
       <div class="result-title">No Private Property</div>
-      <div class="result-body">
-        During MOP
-      </div>
-    </div>
-
-    <div class="result-card conditional">
-      <div class="result-title">After 5 Years</div>
-      <div class="result-body">
-        Sell to SC / PR
-      </div>
+      <div class="result-body">During MOP</div>
     </div>
 
     <div class="result-card eligible">
       <div class="result-title">After 10 Years</div>
-      <div class="result-body">
-        Fully privatized, can sell to foreigners
-      </div>
+      <div class="result-body">Fully privatized</div>
     </div>
 
   </div>
@@ -196,12 +204,61 @@ header h1 { font-family:var(--font-display); font-size:2rem; }
 </div>
 
 <script>
-function switchTab(name, btn) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
+
+/* TAB */
+function switchTab(name, btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
   btn.classList.add('active');
 }
+
+/* SIMPLE QUESTIONNAIRE */
+let step = 0;
+let answers = {};
+
+const questions = [
+  {q:"Are you Singapore Citizen?", key:"citizen", options:["Yes","No"]},
+  {q:"Income below 16k?", key:"income", options:["Yes","No"]}
+];
+
+function renderQ(){
+  let q = questions[step];
+  let html = `<div class="calc-card"><div class="result-title">${q.q}</div><div class="options">`;
+
+  q.options.forEach(o=>{
+    html += `<div class="opt" onclick="select('${q.key}','${o}')">${o}</div>`;
+  });
+
+  html += `</div></div>`;
+  document.getElementById('questionnaire').innerHTML = html;
+}
+
+function select(key,val){
+  answers[key]=val;
+  step++;
+  if(step<questions.length) renderQ();
+  else showResult();
+}
+
+function showResult(){
+  let eligible = answers.citizen==="Yes" && answers.income==="Yes";
+  document.getElementById('questionnaire').innerHTML = `
+    <div class="calc-card">
+      <div class="result-title">${eligible?"Likely Eligible":"Not Eligible"}</div>
+    </div>`;
+}
+
+/* GRANT */
+function calcGrant(){
+  let income = document.getElementById('income').value;
+  let grant = income<=10000?30000:0;
+  document.getElementById('grantResult').innerHTML = "$"+grant;
+}
+
+renderQ();
+calcGrant();
+
 </script>
 
 </body>
