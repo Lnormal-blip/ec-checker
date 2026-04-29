@@ -1,542 +1,157 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EC Eligibility & CPF Grant Checker</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<!-- ══ PANEL 3: PROCESS & CONDITIONS ══ -->
+<div class="panel" id="panel-process">
 
-  :root {
-    --teal-50: #E1F5EE; --teal-100: #9FE1CB; --teal-400: #1D9E75; --teal-600: #0F6E56; --teal-800: #085041;
-    --red-50: #FCEBEB; --red-100: #F7C1C1; --red-400: #E24B4A; --red-800: #791F1F;
-    --amber-50: #FAEEDA; --amber-100: #FAC775; --amber-800: #633806;
-    --blue-50: #E6F1FB; --blue-100: #B5D4F4; --blue-800: #0C447C;
-    --gray-50: #F8F7F4; --gray-100: #EDEDEA; --gray-200: #D8D6D0; --gray-500: #888780; --gray-800: #2C2C2A;
-    --font-body: 'DM Sans', sans-serif;
-    --font-display: 'DM Serif Display', serif;
-    --radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px;
-  }
+  <!-- Buying Process -->
+  <div class="calc-card">
+    <div class="step-label">EC BUYING PROCESS</div>
+    <div class="step-q">Step-by-step timeline of purchasing an Executive Condominium</div>
 
-  body {
-    font-family: var(--font-body);
-    background: var(--gray-50);
-    color: var(--gray-800);
-    min-height: 100vh;
-    padding: 0 0 4rem;
-  }
-
-  header {
-    background: #0F6E56;
-    color: white;
-    padding: 2.5rem 1.5rem 2rem;
-    text-align: center;
-  }
-
-  header h1 {
-    font-family: var(--font-display);
-    font-size: clamp(1.6rem, 4vw, 2.4rem);
-    font-weight: 400;
-    line-height: 1.2;
-    margin-bottom: 0.5rem;
-  }
-
-  header p {
-    font-size: 14px;
-    opacity: 0.8;
-    max-width: 480px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
-
-  .tab-bar {
-    background: #085041;
-    display: flex;
-    max-width: 640px;
-    margin: 0 auto;
-  }
-
-  .tab-btn {
-    flex: 1;
-    padding: 12px 16px;
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: 500;
-    color: rgba(255,255,255,0.6);
-    background: none;
-    border: none;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: color 0.2s, border-color 0.2s;
-  }
-
-  .tab-btn.active {
-    color: white;
-    border-bottom-color: #9FE1CB;
-  }
-
-  .container {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 0 1rem;
-  }
-
-  .panel { display: none; }
-  .panel.active { display: block; }
-
-  /* ── Progress bar ── */
-  .progress-wrap { height: 3px; background: var(--gray-100); margin: 1.5rem 0 1.75rem; border-radius: 2px; }
-  .progress-fill { height: 100%; background: var(--teal-400); border-radius: 2px; transition: width 0.35s ease; }
-
-  /* ── Step ── */
-  .step-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-500); margin-bottom: 6px; }
-  .step-q { font-family: var(--font-display); font-size: 1.25rem; font-weight: 400; color: var(--gray-800); margin-bottom: 1.25rem; line-height: 1.4; }
-
-  /* ── Options ── */
-  .options { display: flex; flex-direction: column; gap: 8px; }
-  .opt {
-    display: flex; align-items: flex-start; gap: 12px;
-    padding: 12px 14px;
-    background: white;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
-  }
-  .opt:hover { border-color: var(--teal-400); background: var(--teal-50); }
-  .opt.selected { border-color: var(--teal-400); background: var(--teal-50); }
-  .opt-radio {
-    width: 17px; height: 17px; border-radius: 50%;
-    border: 1.5px solid var(--gray-200); flex-shrink: 0; margin-top: 2px;
-    display: flex; align-items: center; justify-content: center;
-    transition: border-color 0.15s, background 0.15s;
-  }
-  .opt.selected .opt-radio { border-color: var(--teal-400); background: var(--teal-400); }
-  .opt.selected .opt-radio::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: white; }
-  .opt-text { font-size: 14px; color: var(--gray-800); line-height: 1.5; }
-  .opt-sub { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
-
-  /* ── Nav ── */
-  .nav { display: flex; gap: 8px; margin-top: 1.5rem; }
-  .btn-next {
-    padding: 9px 22px; border-radius: var(--radius-md);
-    border: none; background: var(--teal-400); color: white;
-    font-family: var(--font-body); font-size: 14px; font-weight: 500; cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-next:hover { background: var(--teal-600); }
-  .btn-next:disabled { opacity: 0.35; cursor: default; }
-  .btn-back {
-    padding: 9px 16px; border-radius: var(--radius-md);
-    border: 1px solid var(--gray-200); background: white; color: var(--gray-500);
-    font-family: var(--font-body); font-size: 14px; cursor: pointer;
-    transition: border-color 0.15s;
-  }
-  .btn-back:hover { border-color: var(--gray-500); }
-
-  /* ── Result cards ── */
-  .result-card {
-    padding: 1.5rem; border-radius: var(--radius-lg);
-    border: 1px solid;
-  }
-  .result-card.eligible { background: var(--teal-50); border-color: var(--teal-100); }
-  .result-card.ineligible { background: var(--red-50); border-color: var(--red-100); }
-  .result-card.conditional { background: var(--amber-50); border-color: var(--amber-100); }
-
-  .badge {
-    display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
-    text-transform: uppercase; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px;
-  }
-  .badge-green { background: var(--teal-100); color: var(--teal-800); }
-  .badge-red { background: var(--red-100); color: var(--red-800); }
-  .badge-amber { background: var(--amber-100); color: var(--amber-800); }
-
-  .result-title { font-family: var(--font-display); font-size: 1.3rem; font-weight: 400; margin-bottom: 8px; }
-  .result-card.eligible .result-title { color: var(--teal-800); }
-  .result-card.ineligible .result-title { color: var(--red-800); }
-  .result-card.conditional .result-title { color: var(--amber-800); }
-
-  .result-body { font-size: 14px; line-height: 1.7; }
-  .result-card.eligible .result-body { color: var(--teal-600); }
-  .result-card.ineligible .result-body { color: #A32D2D; }
-  .result-card.conditional .result-body { color: var(--amber-800); }
-
-  .result-notes { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.08); }
-  .note-item { font-size: 13px; margin-bottom: 6px; padding-left: 14px; position: relative; line-height: 1.5; }
-  .note-item::before { content: '•'; position: absolute; left: 0; }
-
-  .restart-btn {
-    margin-top: 1.25rem; padding: 8px 18px;
-    border-radius: var(--radius-md); border: 1px solid var(--gray-200);
-    background: white; color: var(--gray-500); font-family: var(--font-body);
-    font-size: 14px; cursor: pointer;
-  }
-  .restart-btn:hover { border-color: var(--gray-500); }
-
-  /* ── Grant calculator ── */
-  .calc-card {
-    background: white; border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg); padding: 1.5rem; margin-top: 1.5rem;
-  }
-  .field { margin-bottom: 1.25rem; }
-  .field label { font-size: 13px; color: var(--gray-500); display: block; margin-bottom: 6px; }
-  select {
-    width: 100%; padding: 9px 12px;
-    border: 1px solid var(--gray-200); border-radius: var(--radius-md);
-    font-family: var(--font-body); font-size: 14px; color: var(--gray-800);
-    background: white; appearance: none; cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 12px center;
-  }
-  select:focus { outline: none; border-color: var(--teal-400); }
-
-  .income-row { display: flex; align-items: center; gap: 12px; }
-  .income-row input[type=range] {
-    flex: 1; -webkit-appearance: none; height: 4px;
-    background: var(--gray-200); border-radius: 2px; outline: none;
-  }
-  .income-row input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 18px; height: 18px;
-    border-radius: 50%; background: var(--teal-400); cursor: pointer;
-  }
-  .income-val { font-size: 15px; font-weight: 500; min-width: 80px; text-align: right; }
-
-  .grant-result { padding: 1.25rem; border-radius: var(--radius-md); margin-top: 1.25rem; }
-  .grant-result.has-grant { background: var(--teal-50); border: 1px solid var(--teal-100); }
-  .grant-result.no-grant { background: var(--gray-100); border: 1px solid var(--gray-200); }
-  .grant-result.ineligible { background: var(--red-50); border: 1px solid var(--red-100); }
-
-  .grant-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
-  .has-grant .grant-label { color: var(--teal-600); }
-  .no-grant .grant-label { color: var(--gray-500); }
-  .ineligible .grant-label { color: #A32D2D; }
-
-  .grant-amount { font-family: var(--font-display); font-size: 2.2rem; font-weight: 400; }
-  .has-grant .grant-amount { color: var(--teal-800); }
-  .no-grant .grant-amount { color: var(--gray-800); }
-  .ineligible .grant-amount { color: var(--red-800); }
-
-  .grant-note { font-size: 13px; margin-top: 8px; line-height: 1.6; }
-  .has-grant .grant-note { color: var(--teal-600); }
-  .no-grant .grant-note { color: var(--gray-500); }
-  .ineligible .grant-note { color: #A32D2D; }
-
-  .breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
-  .bk { background: white; border-radius: var(--radius-sm); padding: 10px 12px; border: 1px solid rgba(0,0,0,0.06); }
-  .bk-lbl { font-size: 11px; color: var(--teal-600); margin-bottom: 3px; }
-  .bk-val { font-size: 16px; font-weight: 500; color: var(--teal-800); }
-
-  .topup-box {
-    margin-top: 10px; padding: 12px 14px;
-    border-radius: var(--radius-md); background: var(--blue-50);
-    border: 1px solid var(--blue-100); font-size: 13px; color: var(--blue-800); line-height: 1.6;
-  }
-
-  footer {
-    text-align: center; margin-top: 3rem;
-    font-size: 12px; color: var(--gray-500); line-height: 1.7;
-  }
-</style>
-</head>
-<body>
-
-<header>
-  <h1>Singapore EC Eligibility Checker</h1>
-  <p>Check your eligibility to purchase an Executive Condominium and estimate your CPF Housing Grant.</p>
-</header>
-
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('eligibility', this)">Eligibility checker</button>
-  <button class="tab-btn" onclick="switchTab('grant', this)">CPF grant calculator</button>
-</div>
-
-<div class="container">
-
-  <!-- ══ PANEL 1: ELIGIBILITY ══ -->
-  <div class="panel active" id="panel-eligibility">
-    <div class="progress-wrap"><div class="progress-fill" id="e-progress" style="width:10%"></div></div>
-    <div id="e-steps"></div>
-  </div>
-
-  <!-- ══ PANEL 2: GRANT ══ -->
-  <div class="panel" id="panel-grant">
-    <div class="calc-card">
-      <div class="field">
-        <label>Household citizenship type</label>
-        <select id="g-citz" onchange="calcGrant()">
-          <option value="">— select —</option>
-          <option value="sc_sc">SC / SC (both Singapore Citizens)</option>
-          <option value="sc_spr">SC / SPR (one Citizen, one PR)</option>
-        </select>
+    <div class="result-card eligible" style="margin-bottom:12px;">
+      <div class="result-title">Step 1 — Sales Launch</div>
+      <div class="result-body">
+        Project details, pricing and unit mix released.<br><br>
+        <strong>Prepare:</strong>
+        <div class="result-notes">
+          <div class="note-item">Check eligibility</div>
+          <div class="note-item">Secure loan approval</div>
+          <div class="note-item">Budget for downpayment, stamp duty & legal fees</div>
+          <div class="note-item">Account for resale levy (if applicable)</div>
+        </div>
+        <br><strong>Payment:</strong> None
       </div>
-      <div class="field">
-        <label>Household status</label>
-        <select id="g-status" onchange="calcGrant()">
-          <option value="">— select —</option>
-          <option value="both_first">Both first-timers</option>
-          <option value="mix">One first-timer, one second-timer (couple)</option>
-          <option value="both_second">Both second-timers</option>
-        </select>
+    </div>
+
+    <div class="result-card eligible" style="margin-bottom:12px;">
+      <div class="result-title">Step 2 — Submit Application</div>
+      <div class="result-body">
+        Apply directly with the developer.<br><br>
+        Units may be allocated via:
+        <div class="result-notes">
+          <div class="note-item">Balloting system</div>
+          <div class="note-item">First-come-first-serve</div>
+        </div>
+        <br><strong>Payment:</strong> Check with developer
       </div>
-      <div class="field">
-        <label>Average gross monthly household income</label>
-        <div class="income-row">
-          <input type="range" id="g-income" min="1000" max="16000" step="100" value="8000" oninput="calcGrant()">
-          <span class="income-val" id="g-income-disp">$8,000</span>
+    </div>
+
+    <div class="result-card eligible" style="margin-bottom:12px;">
+      <div class="result-title">Step 3 — Application Outcome</div>
+      <div class="result-body">
+        Developer informs you if you are successful.<br><br>
+        <strong>Payment:</strong> None
+      </div>
+    </div>
+
+    <div class="result-card eligible" style="margin-bottom:12px;">
+      <div class="result-title">Step 4 — Book Unit</div>
+      <div class="result-body">
+        Receive Option To Purchase (OTP).<br><br>
+        Submit CPF Housing Grant documents if applicable.<br><br>
+        <strong>Payment:</strong>
+        <div class="result-notes">
+          <div class="note-item">5% option fee (cash / cheque / transfer)</div>
         </div>
       </div>
-      <div id="g-result"></div>
     </div>
 
-    <footer>
-      Based on HDB CPF Housing Grant scheme guidelines.<br>
-      Always verify your eligibility with HDB or the property developer.
-    </footer>
-  </div>
-
-</div>
-
-<script>
-/* ══════════════ TAB SWITCHING ══════════════ */
-function switchTab(name, btn) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
-  btn.classList.add('active');
-}
-
-/* ══════════════ ELIGIBILITY CHECKER ══════════════ */
-const steps = [
-  { id: 'household', label: 'Step 1 of 8 — Household type', q: 'Which best describes your household?', opts: [
-    { v: 'couple', l: 'Engaged couple (fiancé/fiancée)' },
-    { v: 'family', l: 'Married couple with or without children' },
-    { v: 'family_parents', l: 'Single/widowed/divorced SC with parents & siblings' },
-    { v: 'single_child', l: 'Widowed/divorced with child(ren) under legal custody' },
-    { v: 'orphan_siblings', l: 'Orphaned siblings (all single)' },
-    { v: 'singles', l: '2–4 singles applying jointly' },
-  ]},
-  { id: 'citizenship', label: 'Step 2 of 8 — Citizenship', q: 'What is your citizenship status?', opts: [
-    { v: 'sc', l: 'Singapore Citizen (SC)' },
-    { v: 'spr', l: 'Singapore Permanent Resident (SPR)' },
-    { v: 'other', l: 'Neither (foreigner)' },
-  ]},
-  { id: 'group_citizenship', label: 'Step 3 of 8 — Other applicants', q: 'Does at least one other person in your application hold SC or SPR status?', opts: [
-    { v: 'yes', l: 'Yes — at least one other SC or SPR is listed' },
-    { v: 'no', l: 'No — all others are foreigners or there is no one else' },
-  ]},
-  { id: 'age', label: 'Step 4 of 8 — Age', q: 'How old are you?', opts: [
-    { v: 'under21', l: 'Under 21 years old' },
-    { v: '21to34', l: '21 to 34 years old' },
-    { v: '35plus', l: '35 years old or above' },
-  ]},
-  { id: 'income', label: 'Step 5 of 8 — Household income', q: 'What is the combined gross monthly household income of all persons in your EC application?', opts: [
-    { v: 'under16k', l: '$16,000 or below' },
-    { v: 'over16k', l: 'Above $16,000' },
-  ]},
-  { id: 'private_property', label: 'Step 6 of 8 — Private property', q: 'Do you or any person in your application currently own or have an interest in any private residential property?', opts: [
-    { v: 'none', l: 'No — none of us own any private residential property' },
-    { v: 'own', l: 'Yes — at least one of us currently owns one' },
-    { v: 'disposed_lt30', l: 'We disposed of one, but less than 30 months ago' },
-    { v: 'disposed_gt30', l: 'We disposed of one, more than 30 months ago' },
-  ]},
-  { id: 'subsidies', label: 'Step 7 of 8 — Previous subsidies', q: 'How many housing subsidies have the core applicants taken in total?', opts: [
-    { v: 'zero', l: 'None — we have not received any housing subsidy' },
-    { v: 'one', l: 'One subsidy (e.g. bought one HDB or EC previously)' },
-    { v: 'two_plus', l: 'Two or more subsidies' },
-  ]},
-  { id: 'wait', label: 'Step 8 of 8 — Wait-out periods', q: 'Have any of the following happened to you or your spouse?', opts: [
-    { v: 'none', l: 'None of the below apply to me' },
-    { v: 'hdb_cancel', l: 'Cancelled an HDB flat booking within the last 1 year' },
-    { v: 'ec_terminate', l: 'Terminated an EC Sale & Purchase Agreement (with CPF grant) within the last 5 years' },
-    { v: 'ec_own_30', l: 'Own or disposed of an EC unit within the last 30 months' },
-  ]},
-];
-
-let ans = {}, cur = 0;
-
-function visibleSteps() {
-  let v = [steps[0]];
-  if (!ans.household) return v;
-  v.push(steps[1]);
-  if (!ans.citizenship) return v;
-  if (ans.citizenship === 'other') return v;
-  if (ans.household !== 'singles') { v.push(steps[2]); if (!ans.group_citizenship) return v; }
-  v.push(steps[3]); if (!ans.age) return v;
-  v.push(steps[4]); if (!ans.income) return v;
-  v.push(steps[5]); if (!ans.private_property) return v;
-  v.push(steps[6]); if (!ans.subsidies) return v;
-  v.push(steps[7]);
-  return v;
-}
-
-function isEarlyExit() {
-  return ans.citizenship === 'other' ||
-    (ans.household === 'singles' && ans.citizenship && ans.citizenship !== 'sc') ||
-    (ans.household && ans.group_citizenship === 'no') ||
-    ans.age === 'under21' ||
-    (ans.household === 'singles' && ans.age === '21to34') ||
-    ans.income === 'over16k' ||
-    ans.private_property === 'own' ||
-    ans.private_property === 'disposed_lt30' ||
-    ans.subsidies === 'two_plus' ||
-    ans.wait === 'hdb_cancel' ||
-    ans.wait === 'ec_terminate' ||
-    ans.wait === 'ec_own_30';
-}
-
-function computeResult() {
-  if (ans.citizenship === 'other') return { s: 'ineligible', title: 'Not eligible', body: 'EC purchases require at least one Singapore Citizen (SC) applicant.', notes: [] };
-  if (ans.household === 'singles' && ans.citizenship !== 'sc') return { s: 'ineligible', title: 'Not eligible', body: 'When two or more singles apply jointly, all applicants must be Singapore Citizens.', notes: [] };
-  if (ans.household !== 'singles' && ans.group_citizenship === 'no') return { s: 'ineligible', title: 'Not eligible', body: 'Your household must include at least one other SC or SPR.', notes: [] };
-  if (ans.age === 'under21') return { s: 'ineligible', title: 'Not eligible', body: 'All applicants must be at least 21 years old (or 35 for joint singles).', notes: [] };
-  if (ans.household === 'singles' && ans.age === '21to34') return { s: 'ineligible', title: 'Not eligible', body: 'Singles applying jointly must be at least 35 years old.', notes: [] };
-  if (ans.income === 'over16k') return { s: 'ineligible', title: 'Not eligible', body: 'The combined monthly household income must not exceed $16,000.', notes: [] };
-  if (ans.private_property === 'own') return { s: 'ineligible', title: 'Not eligible', body: 'No applicant or occupier may currently own or hold an interest in any private residential property.', notes: [] };
-  if (ans.private_property === 'disposed_lt30') return { s: 'ineligible', title: 'Not eligible yet', body: 'You must wait 30 months from the legal completion date of disposal before applying.', notes: ['Track the exact legal completion date to know when you become eligible.'] };
-  if (ans.subsidies === 'two_plus') return { s: 'ineligible', title: 'Not eligible', body: 'Applicants who have taken two or more housing subsidies are not eligible to apply.', notes: [] };
-  if (ans.wait === 'hdb_cancel') return { s: 'ineligible', title: 'Not eligible yet', body: 'You must wait 1 year from your HDB flat booking cancellation date.', notes: [] };
-  if (ans.wait === 'ec_terminate') return { s: 'ineligible', title: 'Not eligible yet', body: 'You must wait 5 years from the termination of your EC Sale & Purchase Agreement.', notes: [] };
-  if (ans.wait === 'ec_own_30') return { s: 'ineligible', title: 'Not eligible yet', body: 'You must wait 30 months from the date of disposal of your previous EC unit.', notes: [] };
-
-  if (ans.subsidies === 'one') return {
-    s: 'conditional', title: 'Likely eligible — with conditions', body: 'You appear to meet most criteria. Note the condition below.',
-    notes: ['You are a second-timer. A resale levy will be payable to the property developer at purchase.']
-  };
-
-  return {
-    s: 'eligible', title: 'Likely eligible to apply',
-    body: 'Based on your answers, you appear to meet the main eligibility criteria to purchase an Executive Condominium.',
-    notes: [
-      'A final eligibility check is done by the property developer when you book a unit.',
-      'Income documents and supporting paperwork must be submitted at booking.',
-      'If you have any HDB flat interest, dispose of it within 6 months of completing the EC purchase.',
-      'Your household may hold at most 1 non-residential property.'
-    ]
-  };
-}
-
-function renderE() {
-  const vs = visibleSteps();
-  const allDone = vs.every(s => ans[s.id]);
-  const container = document.getElementById('e-steps');
-  const prog = document.getElementById('e-progress');
-
-  if (isEarlyExit() || (allDone && vs.length === 8)) {
-    const r = computeResult();
-    const bm = { eligible: 'badge-green', ineligible: 'badge-red', conditional: 'badge-amber' };
-    const bt = { eligible: 'Eligible', ineligible: 'Not eligible', conditional: 'Conditions apply' };
-    prog.style.width = '100%';
-    container.innerHTML = `
-      <div class="result-card ${r.s}">
-        <span class="badge ${bm[r.s]}">${bt[r.s]}</span>
-        <div class="result-title">${r.title}</div>
-        <div class="result-body">${r.body}
-          ${r.notes.length ? '<div class="result-notes">' + r.notes.map(n => `<div class="note-item">${n}</div>`).join('') + '</div>' : ''}
+    <div class="result-card eligible" style="margin-bottom:12px;">
+      <div class="result-title">Step 5 — Sign Sale & Purchase Agreement</div>
+      <div class="result-body">
+        Engage a solicitor and confirm financing.<br><br>
+        <strong>Payment:</strong>
+        <div class="result-notes">
+          <div class="note-item">15% downpayment (CPF or cash)</div>
+          <div class="note-item">Stamp duty</div>
+          <div class="note-item">Legal fees</div>
         </div>
       </div>
-      <button class="restart-btn" onclick="restartE()">Start over</button>
-    `;
-    return;
-  }
-
-  const step = vs[cur] || vs[vs.length - 1];
-  prog.style.width = Math.round(((cur + 1) / 8) * 100) + '%';
-  const isLast = step.id === vs[vs.length - 1].id;
-
-  container.innerHTML = `
-    <div class="step-label">${step.label}</div>
-    <div class="step-q">${step.q}</div>
-    <div class="options">
-      ${step.opts.map(o => `
-        <div class="opt${ans[step.id] === o.v ? ' selected' : ''}" onclick="selectE('${step.id}','${o.v}')">
-          <div class="opt-radio"></div>
-          <div class="opt-text">${o.l}</div>
-        </div>`).join('')}
     </div>
-    <div class="nav">
-      ${cur > 0 ? `<button class="btn-back" onclick="backE()">Back</button>` : ''}
-      <button class="btn-next" id="e-next" onclick="nextE()" ${ans[step.id] ? '' : 'disabled'}>
-        ${isLast && ans[step.id] ? 'See result' : 'Continue'}
-      </button>
-    </div>
-  `;
-}
 
-function selectE(id, v) {
-  ans[id] = v;
-  if (isEarlyExit()) { renderE(); return; }
-  document.getElementById('e-next') && (document.getElementById('e-next').disabled = false);
-  document.querySelectorAll('.opt').forEach(el => el.classList.remove('selected'));
-  const vs = visibleSteps();
-  const step = vs[cur];
-  document.querySelectorAll('.opt').forEach((el, i) => {
-    if (step.opts[i] && step.opts[i].v === v) el.classList.add('selected');
-  });
-  const isLast = step.id === vs[vs.length - 1].id;
-  if (document.getElementById('e-next')) document.getElementById('e-next').textContent = isLast ? 'See result' : 'Continue';
-}
-
-function nextE() {
-  const vs = visibleSteps();
-  if (cur < vs.length - 1) { cur++; renderE(); }
-  else renderE();
-}
-
-function backE() { if (cur > 0) { cur--; renderE(); } }
-function restartE() { ans = {}; cur = 0; renderE(); }
-
-/* ══════════════ GRANT CALCULATOR ══════════════ */
-function calcGrant() {
-  const citz = document.getElementById('g-citz').value;
-  const status = document.getElementById('g-status').value;
-  const income = parseInt(document.getElementById('g-income').value);
-  document.getElementById('g-income-disp').textContent = '$' + income.toLocaleString();
-
-  const area = document.getElementById('g-result');
-  if (!citz || !status) { area.innerHTML = ''; return; }
-
-  let grant = 0, eligible = true, reason = '', topup = false;
-
-  if (status === 'both_second') {
-    eligible = false; reason = 'Both applicants are second-timers. At least one core member must be a first-timer to qualify for the CPF Housing Grant.';
-  } else if (status === 'mix') {
-    if (citz !== 'sc_sc') { eligible = false; reason = 'The first-timer and second-timer grant combination applies to SC/SC couples only.'; }
-    else { grant = income <= 10000 ? 15000 : income <= 11000 ? 10000 : income <= 12000 ? 5000 : 0; }
-  } else {
-    if (citz === 'sc_sc') { grant = income <= 10000 ? 30000 : income <= 11000 ? 20000 : income <= 12000 ? 10000 : 0; }
-    else { grant = income <= 10000 ? 20000 : income <= 11000 ? 10000 : 0; if (grant > 0) topup = true; }
-  }
-
-  const fmt = n => '$' + n.toLocaleString();
-
-  if (!eligible) {
-    area.innerHTML = `<div class="grant-result ineligible"><div class="grant-label">Not eligible</div><div class="grant-amount">$0</div><div class="grant-note">${reason}</div></div>`;
-    return;
-  }
-  if (grant === 0) {
-    area.innerHTML = `<div class="grant-result no-grant"><div class="grant-label">Grant amount</div><div class="grant-amount">$0</div><div class="grant-note">Your income exceeds the threshold for this household type. No CPF Housing Grant is available, though you may still purchase the EC.</div></div>`;
-    return;
-  }
-
-  const per = Math.round(grant / 2);
-  area.innerHTML = `
-    <div class="grant-result has-grant">
-      <div class="grant-label">CPF housing grant</div>
-      <div class="grant-amount">${fmt(grant)}</div>
-      <div class="grant-note">Credited to the CPF Ordinary Accounts of first-timer SC core members. Can offset the purchase price or reduce your housing loan.</div>
-      <div class="breakdown">
-        <div class="bk"><div class="bk-lbl">Total grant</div><div class="bk-val">${fmt(grant)}</div></div>
-        <div class="bk"><div class="bk-lbl">Per SC applicant</div><div class="bk-val">${fmt(per)}</div></div>
+    <div class="result-card eligible">
+      <div class="result-title">Step 6 — Key Collection</div>
+      <div class="result-body">
+        Collect keys upon project completion.<br><br>
+        <strong>Payment:</strong> Final payments via loan / CPF
       </div>
     </div>
-    ${topup ? `<div class="topup-box">+ $10,000 Citizen Top-Up may be available when your SPR member obtains Singapore citizenship or an SC child is born. Apply to HDB within 6 months of becoming eligible.</div>` : ''}
-  `;
-}
+  </div>
 
-/* ══════════════ INIT ══════════════ */
-renderE();
-calcGrant();
-</script>
-</body>
-</html>
+
+  <!-- Conditions After Buying -->
+  <div class="calc-card">
+    <div class="step-label">AFTER BUYING YOUR EC</div>
+    <div class="step-q">Key rules and restrictions you must follow</div>
+
+    <div class="result-card conditional" style="margin-bottom:12px;">
+      <div class="result-title">Minimum Occupation Period (MOP)</div>
+      <div class="result-body">
+        You must live in the EC for <strong>5 years</strong>.<br><br>
+        During this period, you cannot:
+        <div class="result-notes">
+          <div class="note-item">Sell the unit</div>
+          <div class="note-item">Rent out the entire unit</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-card conditional" style="margin-bottom:12px;">
+      <div class="result-title">Property Ownership Restriction</div>
+      <div class="result-body">
+        During the 5-year MOP:
+        <div class="result-notes">
+          <div class="note-item">Cannot own any private residential property</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-card conditional" style="margin-bottom:12px;">
+      <div class="result-title">After 5 Years</div>
+      <div class="result-body">
+        You may sell your EC on the open market.<br><br>
+        Eligible buyers:
+        <div class="result-notes">
+          <div class="note-item">Singapore Citizens (SC)</div>
+          <div class="note-item">Singapore Permanent Residents (PR)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-card eligible" style="margin-bottom:12px;">
+      <div class="result-title">After 10 Years</div>
+      <div class="result-body">
+        EC becomes fully privatized.<br><br>
+        You can:
+        <div class="result-notes">
+          <div class="note-item">Sell to foreigners</div>
+          <div class="note-item">Treat it like a private condominium</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-card conditional" style="margin-bottom:12px;">
+      <div class="result-title">Resale Levy</div>
+      <div class="result-body">
+        Applies if you previously bought subsidised housing.<br><br>
+        <div class="result-notes">
+          <div class="note-item">Payable upon EC purchase</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-card conditional">
+      <div class="result-title">HDB Disposal Rule</div>
+      <div class="result-body">
+        If you own an HDB flat:
+        <div class="result-notes">
+          <div class="note-item">Must sell within 6 months after EC completion</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    Always verify final eligibility and conditions with the property developer, HDB, or your solicitor.
+  </footer>
+
+</div>
